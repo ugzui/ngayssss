@@ -6,7 +6,7 @@ API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InVnenVpOTkiLC
 BOT_TOKEN = "7914664676:AAHz5a375rhGzPoxsO5VH5_Qqyz9CbKjIBg"
 ALLOWED_USER_ID = 7984610063
 
-# --- HÀM GỌI API 1688 ---
+# --- GỌI API ---
 def get_trending_items(keyword, days):
     url = "https://tmapi.top/api/ali/item-list/search"
     headers = {"Authorization": API_TOKEN}
@@ -17,36 +17,35 @@ def get_trending_items(keyword, days):
         "days": days,
         "page": 1
     }
-    res = requests.get(url, headers=headers, params=params)
-    print("Status code:", res.status_code)
-    print("Content:", res.text)
-
     try:
+        res = requests.get(url, headers=headers, params=params, timeout=30)
+        res.raise_for_status()
         items = res.json().get("data", [])
+        results = []
+        for item in items:
+            if item.get("salesVolume", 0) >= 5000 and all(x not in item.get("title", "") for x in ["内裤", "胸罩", "袜子"]):
+                results.append(item)
+            if len(results) >= 10:
+                break
+        return results
     except Exception as e:
-        print("Lỗi parse JSON:", e)
+        print("Lỗi API:", e)
         return []
 
-    results = []
-    for item in items:
-        if item.get("salesVolume", 0) >= 5000 and all(x not in item.get("title", "") for x in ["内裤", "胸罩", "袜子"]):
-            results.append(item)
-        if len(results) >= 10:
-            break
-    return results
-
-# --- GỬI KẾT QUẢ VỀ TELEGRAM ---
+# --- GỬI TEXT ---
 def send_results(update, items):
     for item in items:
-        title = item.get("title", "")
-        link = item.get("itemUrl")
-        img = item.get("imageList", [""])[0]
+        title = item.get("title", "Không có tiêu đề")
+        link = item.get("itemUrl", "#")
         volume = item.get("salesVolume", 0)
-        price = item.get("price", "")
+        price = item.get("price", "N/A")
         msg = f"👗 <b>{title}</b>\n💰 Giá: ¥{price}\n📦 Đơn bán: {volume}\n🔗 <a href='{link}'>Xem sản phẩm</a>"
-        update.message.bot.send_photo(chat_id=update.effective_chat.id, photo=img, caption=msg, parse_mode='HTML')
+        try:
+            update.message.reply_text(msg, parse_mode='HTML', disable_web_page_preview=True)
+        except Exception as e:
+            print("Lỗi gửi tin nhắn:", e)
 
-# --- XỬ LÝ LỆNH ---
+# --- LỆNH ---
 def handle_command(keyword, days):
     def handler(update, context):
         if update.effective_user.id != ALLOWED_USER_ID:
