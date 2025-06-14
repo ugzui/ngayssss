@@ -1,10 +1,9 @@
-import os
 import requests
 from telegram.ext import Updater, CommandHandler
 
 # --- CẤU HÌNH ---
-API_TOKEN = os.environ.get("API_TOKEN")
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InVnenVpOTkiLCJDb21pZCI6bnVsbCwiUm9sZWlkIjpudWxsLCJpc3MiOiJ0bWFwaSIsInN1YiI6InVnenVpOTkiLCJhdWQiOlsiIl0sImlhdCI6MTc0OTgzODcwNn0.GQcqv2-ZrFmpyTSqoCvIA0BLJYuhp7-h0Ogsl7foIWs"
+BOT_TOKEN = "7914664676:AAHz5a375rhGzPoxsO5VH5_Qqyz9CbKjIBg"
 ALLOWED_USER_ID = 7984610063
 
 # --- HÀM GỌI API 1688 ---
